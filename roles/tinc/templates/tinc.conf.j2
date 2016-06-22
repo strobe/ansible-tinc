@@ -6,3 +6,11 @@ Interface = {{ vpn_interface }}
 ConnectTo = {{ hostvars[host]['inventory_hostname'] }}
 {% endif %}
 {% endfor %}
+
+Broadcast = mst
+Mode = switch
+
+{% if encryption == false %}
+Cipher = none
+Digest = none
+{% endif%}
