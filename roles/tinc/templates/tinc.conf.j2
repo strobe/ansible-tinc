@@ -7,10 +7,14 @@ ConnectTo = {{ hostvars[host]['inventory_hostname'] }}
 {% endif %}
 {% endfor %}
 
-Broadcast = mst
-Mode = switch
 
 {% if encryption == false %}
 Cipher = none
 Digest = none
+Compression = none
 {% endif%}
+
+PMTU = 9000
+TunnelServer = no
+Forwarding = off
+DirectOnly = yes

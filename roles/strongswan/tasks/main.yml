@@ -1,0 +1,76 @@
+---
+
+- name: install epel-release (redhat)
+  yum: >
+    name=epel-release
+    state=latest
+  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version == "7")
+  become: true
+
+- name: install strongswan
+  package: >
+    name=strongswan
+    state=latest
+  become: true
+
+- name: install networking tools (tcpdump)
+  package: >
+    name=tcpdump
+    state=latest
+  become: true
+
+- name: install networking tools (nmap)
+  package: >
+    name=nmap
+    state=latest
+  become: true
+
+- name: install rsync
+  package: >
+    name=rsync
+    state=latest
+  become: true
+
+- name: ensure /etc/strongswan/ipsec.d directory exists
+  file:
+    path: "/etc/strongswan/ipsec.d"
+    state: directory
+  become: true
+
+- name: transfer the ca cert
+  copy: src=roles/strongswan-ca/files/strongswan_certs/cacerts dest=/etc/strongswan/ipsec.d
+  become: true
+
+- name: sync the cert files on each host
+  synchronize: >
+    src=roles/strongswan-ca/files/strongswan_certs/certs
+    dest=/etc/strongswan/ipsec.d
+  become: true
+
+- name: sync the keys files on each host
+  synchronize: >
+    src=roles/strongswan-ca/files/strongswan_certs/private
+    dest=/etc/strongswan/ipsec.d
+  become: true
+
+- name: ensure /etc/strongswan/ directory exists
+  file:
+    path: "/etc/strongswan/"
+    state: directory
+  become: true
+
+- name: create ipsec.secrets file (redhat)
+  template: >
+    src=ipsec.secrets.j2
+    dest=/etc/strongswan/ipsec.secrets
+  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version == "7")
+  become: true
+
+- name: create ipsec.conf file (redhat)
+  template: >
+    src=ipsec.conf.j2
+    dest=/etc/strongswan/ipsec.conf
+  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version == "7")
+  become: true
+  notify:
+    - restart strongswan

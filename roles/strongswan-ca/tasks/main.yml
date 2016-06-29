@@ -1,0 +1,23 @@
+---
+
+- name: ensure custom facts directory exists
+  file:
+    path: "roles/strongswan-ca/files/strongswan_certs"
+    state: directory
+
+- name: register stat for strongswanCert.pem  file
+  stat: path=roles/strongswan-ca/files/strongswan_certs/cacerts/strongswanCert.pem
+  register: ca_cert
+
+- name: generate ca certificates
+  local_action: >
+    shell ../ca_key.sh {{ inventory_hostname }} chdir=roles/strongswan-ca/files/strongswan_certs
+  when: ca_cert.stat.exists != true
+  register: ca_cert_gen
+
+- name: show CA generation output
+  debug: msg="{{ ca_cert_gen.stdout_lines }}"
+  when: ca_cert.stat.exists != true
+
+
+

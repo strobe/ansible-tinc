@@ -1,0 +1,22 @@
+---
+
+- name: ensure strongswan_certs directory exists
+  file:
+    path: "roles/strongswan-ca/files/strongswan_certs"
+    state: directory
+
+- name: register host cert file stats
+  local_action:
+    module: stat
+    path: roles/strongswan-ca/files/strongswan_certs/certs/{{ inventory_hostname }}-hostCert.pem
+  register: host_cert_path
+
+- name: generate hosts certificates
+  local_action: >
+    shell ../host_key.sh {{ inventory_hostname }} chdir=roles/strongswan-ca/files/strongswan_certs
+  register: hosts_certs_gen_output
+  when: host_cert_path.stat.exists != true
+
+- name: show hosts generation output
+  debug: msg="{{ hosts_certs_gen_output.stdout_lines }}"
+  when: host_cert_path.stat.exists != true
