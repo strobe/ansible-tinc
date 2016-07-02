@@ -1,13 +1,18 @@
 ---
 
-- hosts: 127.0.0.1
-  connection: local
+#- hosts: 127.0.0.1
+#  connection: local
+#  roles:
+#     - strongswan-ca
+
+- hosts: cert-gen
   roles:
-     - strongswan-ca
+     - strongswan-packages
+     - strongswan-certs
 
 - hosts: vpn
   roles:
-#     - strongswan-certs
+     - strongswan-packages
      - strongswan
 #    - tinc
 

@@ -12,8 +12,8 @@ config setup
 {% for host in play_hosts %}
 {% if inventory_hostname != hostvars[host]['inventory_hostname'] %}
 
-conn host-host {{ hostvars[host]['inventory_hostname'] }}
-    leftcert={{ hostvars[host]['inventory_hostname'] }}-hostCert.pem
+conn host-host-{{ hostvars[host]['inventory_hostname'] }}
+    leftcert={{ inventory_hostname }}-hostCert.pem
     right={{ hostvars[host]['physical_ip'] }}
     rightid="C=CH, O=VULTR-VPS-CENTOS, CN={{ hostvars[host]['inventory_hostname'] }}"
     auto=start

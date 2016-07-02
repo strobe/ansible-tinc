@@ -10,13 +10,13 @@ fi
 echo "C=CH, O=VULTR-VPS-CENTOS, CN=$CN" >> certsOUT-$CN.txt
 
 echo 'CA certs at cacerts/strongswanCert.pem\n'
-pki --print --in cacerts/strongswanCert.pem
+strongswan pki --print --in cacerts/strongswanCert.pem
 
 sleep 1
 echo "\ngenerating server keys ..."
-pki --gen --type rsa --size 2048 --outform pem > private/$CN-hostKey.pem
-pki --pub --in private/$CN-hostKey.pem --type rsa | \
-	pki --issue --lifetime 730 \
+strongswan pki --gen --type rsa --size 2048 --outform pem > private/$CN-hostKey.pem
+strongswan pki --pub --in private/$CN-hostKey.pem --type rsa | \
+	strongswan pki --issue --lifetime 730 \
 	--cacert cacerts/strongswanCert.pem \
 	--cakey private/strongswanKey.pem \
 	--dn "C=CH, O=VULTR-VPS-CENTOS, CN=$CN" \
@@ -24,4 +24,4 @@ pki --pub --in private/$CN-hostKey.pem --type rsa | \
 	--flag serverAuth --flag ikeIntermediate \
 	--outform pem > certs/$CN-hostCert.pem
 echo "vpn server cert at certs/$CN-hostCert.pem\n"
-pki --print --in certs/$CN-hostCert.pem
+strongswan pki --print --in certs/$CN-hostCert.pem

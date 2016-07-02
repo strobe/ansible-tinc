@@ -1,22 +1,76 @@
 ---
 
+# coping files to server
+
+#- name: install rsync
+#  package: >
+#    name=rsync
+#    state=latest
+#  become: true
+
+- name: sync scripts
+  synchronize: >
+    src=roles/strongswan-certs/files/
+    dest=~/
+
+# generating CA certificate
+
 - name: ensure strongswan_certs directory exists
   file:
-    path: "roles/strongswan-ca/files/strongswan_certs"
+    path: "strongswan_certs"
     state: directory
+  become: true
+
+- name: register stat for strongswanCert.pem  file
+  stat: path=strongswan_certs/cacerts/strongswanCert.pem
+  register: ca_cert
+  become: true
+
+- name: generate ca certificate
+  shell: ../ca_key.sh {{ inventory_hostname }} chdir=strongswan_certs
+  when: ca_cert.stat.exists != true
+  register: ca_cert_gen
+  become: true
+
+- name: show CA generation output to Ansible
+  debug: msg="{{ ca_cert_gen.stdout_lines }}"
+  when: ca_cert.stat.exists != true
+  become: true
+
+# generating hosts certificates
 
 - name: register host cert file stats
-  local_action:
-    module: stat
-    path: roles/strongswan-ca/files/strongswan_certs/certs/{{ inventory_hostname }}-hostCert.pem
-  register: host_cert_path
+  stat: path=strongswan_certs/certs/{{ hostvars[item]['inventory_hostname'] }}-hostCert.pem
+  register: hosts_certs_path
+  with_items: "{{ groups['vpn'] }}"
 
 - name: generate hosts certificates
-  local_action: >
-    shell ../host_key.sh {{ inventory_hostname }} chdir=roles/strongswan-ca/files/strongswan_certs
+  shell: ../host_key.sh {{ hostvars[item[1]]['inventory_hostname'] }} chdir=strongswan_certs
   register: hosts_certs_gen_output
-  when: host_cert_path.stat.exists != true
+  when: item[0].stat.exists != true
+  become: true
+  with_nested:
+    - "{{ hosts_certs_path.results }}"
+    - "{{ groups['vpn'] }}"
 
 - name: show hosts generation output
-  debug: msg="{{ hosts_certs_gen_output.stdout_lines }}"
-  when: host_cert_path.stat.exists != true
+  debug: msg="{{ item[2].stdout_lines }}"
+  when: item[0].stat.exists != true
+  with_nested:
+    - "{{ hosts_certs_path.results }}"
+    - "{{ groups['vpn'] }}"
+    - "{{ hosts_certs_gen_output.results  }}"
+
+# fetching certificates
+
+- name: ensure strongswan_certs directory exists
+  local_action: >
+    file path="strongswan_certs" state=directory
+
+- name: sync scripts
+  synchronize: mode=pull src=~/strongswan_certs/ dest=strongswan_certs
+  become: true
+
+
+###
+

@@ -9,16 +9,16 @@ fi
 
 mkdir -p private && mkdir -p cacerts && mkdir -p certs
 
-pki --gen --type rsa --size 4096 --outform pem > private/strongswanKey.pem
-pki --self --ca --lifetime 3650 --in private/strongswanKey.pem --type rsa --dn "C=CH, O=VULTR-VPS-CENTOS, CN=$CN" --outform pem > cacerts/strongswanCert.pem
+strongswan pki --gen --type rsa --size 4096 --outform pem > private/strongswanKey.pem
+strongswan pki --self --ca --lifetime 3650 --in private/strongswanKey.pem --type rsa --dn "C=CH, O=VULTR-VPS-CENTOS, CN=$CN" --outform pem > cacerts/strongswanCert.pem
 echo 'CA certs at cacerts/strongswanCert.pem\n'
-pki --print --in cacerts/strongswanCert.pem
+strongswan pki --print --in cacerts/strongswanCert.pem
 
 sleep 1
 echo "\ngenerating server keys ..."
-pki --gen --type rsa --size 2048 --outform pem > private/$CN-hostKey.pem
-pki --pub --in private/vpnHostKey.pem --type rsa | \
-	pki --issue --lifetime 730 \
+strongswan pki --gen --type rsa --size 2048 --outform pem > private/$CN-hostKey.pem
+strongswan pki --pub --in private/vpnHostKey.pem --type rsa | \
+	strongswan pki --issue --lifetime 730 \
 	--cacert cacerts/strongswanCert.pem \
 	--cakey private/strongswanKey.pem \
 	--dn "C=CH, O=VULTR-VPS-CENTOS, CN=$CN" \
@@ -26,4 +26,4 @@ pki --pub --in private/vpnHostKey.pem --type rsa | \
 	--flag serverAuth --flag ikeIntermediate \
 	--outform pem > certs/$CN-hostCert.pem
 echo "vpn server cert at certs/$CN-hostCert.pem\n"
-pki --print --in certs/$CN-hostCert.pem
+strongswan pki --print --in certs/$CN-hostCert.pem

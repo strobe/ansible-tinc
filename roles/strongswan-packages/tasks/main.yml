@@ -1,0 +1,30 @@
+- name: install rsync
+  package: >
+    name=rsync
+    state=latest
+  become: true
+
+- name: install epel-release (redhat)
+  yum: >
+    name=epel-release
+    state=latest
+  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version == "7")
+  become: true
+
+- name: install strongswan
+  package: >
+    name=strongswan
+    state=latest
+  become: true
+
+- name: install networking tools (tcpdump)
+  package: >
+    name=tcpdump
+    state=latest
+  become: true
+
+- name: install networking tools (nmap)
+  package: >
+    name=nmap
+    state=latest
+  become: true
