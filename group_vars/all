@@ -1,12 +1,15 @@
 ---
 
-netname: nyc3
-physical_ip: "{{ ansible_enp0s8.ipv4.address }}"
-# physical_ip: "{{ ansible_eth0.ipv4.address }}"
+#physical_ip: "{{ ansible_enp0s8.ipv4.address }}"
+physical_ip: "{{ ansible_eth0.ipv4.address }}"
 
+vpn_netname: nyc3
 vpn_interface: tun0
-
 vpn_netmask: 255.255.255.0
 vpn_subnet_cidr_netmask: 32
+vpn_encryption: false
 
-encryption: false
+swan_c: RU
+swan_o: ipsec_vpn
+
+debug_messages: false

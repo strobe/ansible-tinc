@@ -5,14 +5,17 @@
     name=tinc
     enabled=no
     state=stopped
-    pattern=tincd -n {{ netname }}
+    pattern=tincd -n {{ vpn_netname }}
+  become: true
 
 - name: delete tinc netname directory
   file: >
-    path=/etc/tinc/{{ netname }}
+    path=/etc/tinc/{{ vpn_netname }}
     state=absent
+  become: true
 
 - name: delete nets.boot
   file: >
     path=/etc/tinc/nets.boot
     state=absent
+  become: true

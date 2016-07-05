@@ -1,10 +1,5 @@
 ---
 
-#- hosts: 127.0.0.1
-#  connection: local
-#  roles:
-#     - strongswan-ca
-
 - hosts: cert-gen
   roles:
      - strongswan-packages
@@ -14,7 +9,7 @@
   roles:
      - strongswan-packages
      - strongswan
-#    - tinc
+     - tinc
 
 - hosts: removevpn
   roles:

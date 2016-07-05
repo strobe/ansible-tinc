@@ -4,8 +4,10 @@
   service: >
     name=tinc
     state=restarted
+  become: true
 
 - name: reload tinc
   service: >
     name=tinc
     state=reloaded
+  become: true

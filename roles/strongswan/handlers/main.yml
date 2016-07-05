@@ -6,3 +6,9 @@
     state=restarted
   become: true
 
+- name: start strongswan
+  service: >
+    name=strongswan
+    state=started
+  become: true
+

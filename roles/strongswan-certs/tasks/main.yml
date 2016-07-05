@@ -2,16 +2,10 @@
 
 # coping files to server
 
-#- name: install rsync
-#  package: >
-#    name=rsync
-#    state=latest
-#  become: true
-
 - name: sync scripts
   synchronize: >
     src=roles/strongswan-certs/files/
-    dest=~/
+    dest=~/strongswan_certs
 
 # generating CA certificate
 
@@ -27,14 +21,14 @@
   become: true
 
 - name: generate ca certificate
-  shell: ../ca_key.sh {{ inventory_hostname }} chdir=strongswan_certs
+  shell: ./ca_key.sh {{ swan_c }} {{ swan_o }} {{ inventory_hostname }} chdir=strongswan_certs
   when: ca_cert.stat.exists != true
   register: ca_cert_gen
   become: true
 
 - name: show CA generation output to Ansible
   debug: msg="{{ ca_cert_gen.stdout_lines }}"
-  when: ca_cert.stat.exists != true
+  when: ca_cert.stat.exists != true and {{ vpn_encryption }} == true
   become: true
 
 # generating hosts certificates
@@ -45,7 +39,7 @@
   with_items: "{{ groups['vpn'] }}"
 
 - name: generate hosts certificates
-  shell: ../host_key.sh {{ hostvars[item[1]]['inventory_hostname'] }} chdir=strongswan_certs
+  shell: ./host_key.sh {{ swan_c }} {{ swan_o }} {{ hostvars[item[1]]['inventory_hostname'] }} chdir=strongswan_certs
   register: hosts_certs_gen_output
   when: item[0].stat.exists != true
   become: true
@@ -55,7 +49,7 @@
 
 - name: show hosts generation output
   debug: msg="{{ item[2].stdout_lines }}"
-  when: item[0].stat.exists != true
+  when: item[0].stat.exists != true and {{ vpn_encryption }} == true
   with_nested:
     - "{{ hosts_certs_path.results }}"
     - "{{ groups['vpn'] }}"
@@ -68,8 +62,16 @@
     file path="strongswan_certs" state=directory
 
 - name: sync scripts
-  synchronize: mode=pull src=~/strongswan_certs/ dest=strongswan_certs
-  become: true
+  synchronize: >
+    mode=pull
+    src=~/strongswan_certs/
+    dest=strongswan_certs
+    recursive=yes
+    set_remote_user=yes
+
+#- name: pull certs via rsync scripts
+#  local_action: >
+#    shell rsync -a {{ ansible_ssh_user }}@{{ hostvars[inventory_hostname].ansible_host }}:~/strongswan_certs ./
 
 
 ###

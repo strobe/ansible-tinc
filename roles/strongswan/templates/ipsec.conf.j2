@@ -15,8 +15,12 @@ config setup
 conn host-host-{{ hostvars[host]['inventory_hostname'] }}
     leftcert={{ inventory_hostname }}-hostCert.pem
     right={{ hostvars[host]['physical_ip'] }}
-    rightid="C=CH, O=VULTR-VPS-CENTOS, CN={{ hostvars[host]['inventory_hostname'] }}"
+    rightid="C={{ swan_c }}, O={{ swan_o }}, CN={{ hostvars[host]['inventory_hostname'] }}"
     auto=start
+    # you may specify Cipher, Pseudo-random, Diffie Hellman Groups
+    # esp=aes128cbc-prfsha256-ecp256
+    # ike=aes128cbc-prfsha256-ecp256
+
 
 {% endif %}
 {% endfor %}

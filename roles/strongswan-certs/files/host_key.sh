@@ -1,13 +1,13 @@
 #!/bin/bash
-if [ $1 ];	then
-	CN=$1
-	echo "generating keys for $CN ..."
+if [ "$#" -eq 3 ]; then
+	C=$1
+	O=$2
+	CN=$3
+	echo "generating keys for $C, $O, $CN ..."
 else
 	echo "usage:\n sh server_key.sh YOUR EXACT HOST NAME or SERVER IP\n Run this script in directory to store your keys"
 	exit 1
 fi
-
-echo "C=CH, O=VULTR-VPS-CENTOS, CN=$CN" >> certsOUT-$CN.txt
 
 echo 'CA certs at cacerts/strongswanCert.pem\n'
 strongswan pki --print --in cacerts/strongswanCert.pem
@@ -19,7 +19,7 @@ strongswan pki --pub --in private/$CN-hostKey.pem --type rsa | \
 	strongswan pki --issue --lifetime 730 \
 	--cacert cacerts/strongswanCert.pem \
 	--cakey private/strongswanKey.pem \
-	--dn "C=CH, O=VULTR-VPS-CENTOS, CN=$CN" \
+	--dn "C=$C, O=$O, CN=$CN" \
 	--san $CN \
 	--flag serverAuth --flag ikeIntermediate \
 	--outform pem > certs/$CN-hostCert.pem

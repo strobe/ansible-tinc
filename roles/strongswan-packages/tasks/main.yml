@@ -28,3 +28,9 @@
     name=nmap
     state=latest
   become: true
+
+- name: install networking tools (iperf)
+  package: >
+    name=iperf
+    state=latest
+  become: true

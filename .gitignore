@@ -1,1 +1,6 @@
 fetch
+.vagrant/*
+strongswan_certs/*
+target/*
+site.retry
+test.retry

@@ -1,35 +1,16 @@
 ---
 
-#- name: install epel-release (redhat)
-#  yum: >
-#    name=epel-release
-#    state=latest
-#  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version == "7")
-#  become: true
-#
-#- name: install strongswan
-#  package: >
-#    name=strongswan
-#    state=latest
-#  become: true
-#
-#- name: install networking tools (tcpdump)
-#  package: >
-#    name=tcpdump
-#    state=latest
-#  become: true
-#
-#- name: install networking tools (nmap)
-#  package: >
-#    name=nmap
-#    state=latest
-#  become: true
-#
-#- name: install rsync
-#  package: >
-#    name=rsync
-#    state=latest
-#  become: true
+- name: set hostname
+  hostname: name={{ inventory_hostname }}
+  become: true
+
+- name: updating sudoers to prevert ansible synchronize error with sido tty
+  lineinfile: >
+       dest=/etc/sudoers
+       line="# Defaults    requiretty"
+       regexp="Defaults\s\s\s\srequiretty"
+       create=yes
+  become: true
 
 - name: ensure /etc/strongswan/ipsec.d directory exists
   file:
@@ -41,17 +22,30 @@
   copy: src=strongswan_certs/cacerts dest=/etc/strongswan/ipsec.d
   become: true
 
-- name: sync the cert files on each host
-  synchronize: >
-    src=strongswan_certs/certs
-    dest=/etc/strongswan/ipsec.d
+#- name: sync the cert files on each host
+#  synchronize: >
+#    src=strongswan_certs/certs
+#    dest=/etc/strongswan/ipsec.d
+##  become: true
+
+- name: copy the cert files on each host
+  copy: >
+   src=strongswan_certs/certs
+   dest=/etc/strongswan/ipsec.d
   become: true
 
-- name: sync the keys files on each host
-  synchronize: >
-    src=strongswan_certs/private
-    dest=/etc/strongswan/ipsec.d
+#- name: sync the keys files on each host
+#  synchronize: >
+#    src=strongswan_certs/private/{{ inventory_hostname }}-hostKey.pem
+#    dest=/etc/strongswan/ipsec.d/private/
+##  become: true
+
+- name: copy the keys files on each host
+  copy: >
+   src=strongswan_certs/private/{{ inventory_hostname }}-hostKey.pem
+   dest=/etc/strongswan/ipsec.d/private/{{ inventory_hostname }}-hostKey.pem
   become: true
+
 
 - name: ensure /etc/strongswan/ directory exists
   file:
@@ -63,14 +57,19 @@
   template: >
     src=ipsec.secrets.j2
     dest=/etc/strongswan/ipsec.secrets
-  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version == "7")
+    force=yes
+  become: true
+
+- name: enable strongswan service
+  shell: systemctl enable strongswan
   become: true
 
 - name: create ipsec.conf file (redhat)
   template: >
     src=ipsec.conf.j2
     dest=/etc/strongswan/ipsec.conf
-  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version == "7")
+    force=yes
   become: true
   notify:
-    - restart strongswan
+    - start strongswan
+

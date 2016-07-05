@@ -6,18 +6,4 @@ s1 vpn_ip=10.0.0.1 ansible_host=192.168.7.100
 s2 vpn_ip=10.0.0.2 ansible_host=192.168.7.101
 s3 vpn_ip=10.0.0.3 ansible_host=192.168.7.102
 
-#s1 vpn_ip=10.0.0.1 ansible_host=163.172.161.112
-#s2 vpn_ip=10.0.0.2 ansible_host=163.172.165.240
-#s3 vpn_ip=10.0.0.3 ansible_host=163.172.156.129
-
-
-#m1 vpn_ip=10.0.0.1 ansible_host=212.47.250.43
-
-#a1 vpn_ip=10.0.0.2 ansible_host=163.172.156.47
-#a2 vpn_ip=10.0.0.3 ansible_host=163.172.156.129
-#a3 vpn_ip=10.0.0.4 ansible_host=163.172.158.189
-
-#boot vpn_ip=10.0.0.10 ansible_host=163.172.158.240
-#p1 vpn_ip=10.0.0.11 ansible_host=163.172.158.200
-
 [removevpn]

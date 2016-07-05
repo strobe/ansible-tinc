@@ -8,7 +8,7 @@ ConnectTo = {{ hostvars[host]['inventory_hostname'] }}
 {% endfor %}
 
 
-{% if encryption == false %}
+{% if vpn_encryption == false %}
 Cipher = none
 Digest = none
 Compression = none
